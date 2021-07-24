@@ -1,0 +1,72 @@
+int fixcol(const char* archivo, size_t columnas){
+	FILE* arch = fopen(archivo, "r");
+	if(arch == NULL){
+		fprintf(stderr,"Error: archivo fuente inaccesible\n");
+		return 1;
+	}
+	fseek(arch,0,SEEK_END);
+	long int bytes = ftell(arch);
+	fseek(arch,0,SEEK_SET);
+	if(bytes < columnas || columnas <= 0){
+		char caracteres[bytes];
+		while(fgets(caracteres, (int)bytes, arch)){
+			int i = 0;
+			while(i < strlen(caracteres)){
+				fprintf(stdout,"%c",caracteres[i]);
+				i ++;
+			}
+			i = 0;
+		}
+		return 0;
+	}
+	char *linea = NULL;
+	size_t tam = 0;
+	ssize_t letras = 1;
+	letras = getline(&linea,&tam,arch);
+	char* cadena_aux = malloc(sizeof(char) * (columnas + 1));
+	if(cadena_aux == NULL){
+		fclose(arch);
+		free(linea);
+		return -1;
+	}
+	while(letras != -1) {
+		size_t contador = 0;
+		size_t cantidad_caracteres_linea = strlen(linea);
+		for(size_t i = 0; i < cantidad_caracteres_linea; i ++){
+			if(contador < columnas && linea[i] != '\n'){
+				cadena_aux[contador] = linea[i];
+				contador ++;
+			}
+			else{
+				cadena_aux[contador] = '\0';
+				contador = 0;
+				fprintf(stdout, "%s\n", cadena_aux);
+				cadena_aux[contador] = linea[i];
+				contador ++;
+			}		
+		}
+		letras = getline(&linea,&tam,arch);
+	}
+	free(cadena_aux);
+	free(linea);
+	fclose(arch);
+	return 0;
+}
+
+
+int fixcol(const char* archivo, int columnas){
+	FILE* arch = fopen(archivo, "r");
+	if(arch == NULL){
+		fprintf(stderr,"Error: archivo fuente inaccesible\n");
+		return -1;
+	}
+	char caracteres[columnas + 1];
+	while(fgets(caracteres,columnas + 1,arch)){
+		fprintf(stdout,"%s",caracteres);
+		if(caracteres[strlen(caracteres) - 1] != '\n'){
+			fprintf(stdout,"\n");
+		}
+	}
+	fclose(arch);
+	return 0;
+}
